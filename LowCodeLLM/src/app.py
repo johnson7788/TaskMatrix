@@ -61,3 +61,6 @@ def execute():
         app.logger.error(
             'failed to execute, msg:%s, request data:%s' % (str(e), request.json))
         return {'errmsg': str(e)}, 500
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=8460)

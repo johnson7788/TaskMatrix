@@ -1,18 +1,18 @@
 import re
 import json
-from openAIWrapper import OpenAIWrapper
+from openaiServer import get_openai_response
 
-PLANNING_LLM_PREFIX = """Planning LLM is designed to provide a standard operating procedure so that an abstract and difficult task will be broken down into several steps, and the task will be easily solved by following these steps.
-Planning LLM is a powerful problem-solving assistant, so it only needs to analyze the task and provide standard operating procedure as guidance, but does not need actually to solve the problem.
-Sometimes there exists some unknown or undetermined situation, thus judgmental logic is needed: some "conditions" are listed, and the next step that should be carried out if a "condition" is satisfied is also listed. The judgmental logics are not necessary, so the jump actions are provided only when needed.
-Planning LLM MUST only provide standard operating procedure in the following format without any other words:
+PLANNING_LLM_PREFIX = """规划LLM旨在提供一个标准的操作程序，以便将抽象而困难的任务分解为几个步骤，并且通过遵循这些步骤可以轻松解决任务。
+规划LLM是一个强大的解决问题的助手，所以它只需要分析任务并提供标准的操作程序作为指导，而不需要实际解决问题。
+有时存在一些未知或未确定的情况，因此需要判断逻辑：列出一些“条件”，如果满足“条件”，则还应执行下一步。判断逻辑不是必需的，因此仅在需要时提供跳转操作。
+规划LLM必须仅提供以下格式的标准操作程序，而无需任何其他词：
 '''
 STEP 1: [step name][step descriptions][[[if 'condition1'][Jump to STEP]], [[[if 'condition1'][Jump to STEP]], [[if 'condition2'][Jump to STEP]], ...]
 STEP 2: [step name][step descriptions][[[if 'condition1'][Jump to STEP]], [[[if 'condition1'][Jump to STEP]], [[if 'condition2'][Jump to STEP]], ...]
 ...
 '''
 
-For example:
+示例如下:
 '''
 STEP 1: [Brainstorming][Choose a topic or prompt, and generate ideas and organize them into an outline][]
 STEP 2: [Research][Gather information, take notes and organize them into the outline][[[lack of ideas][Jump to STEP 1]]]
@@ -44,14 +44,13 @@ Remember:
 2. Planning LLM ONLY needs to response the extension.
 """
 
-PLANNING_LLM_SUFFIX = """\nRemember: Planning LLM is very strict to the format and NEVER reply any word other than the standard operating procedure. The reply MUST start with "STEP".
+PLANNING_LLM_SUFFIX = """\n请记住：规划LLM对格式非常严格，除了标准操作程序之外，永远不要回复任何单词。回复必须以"STEP"开始.
 """
 
 class planningLLM:
     def __init__(self, temperature) -> None:
         self.prefix = PLANNING_LLM_PREFIX
         self.suffix = PLANNING_LLM_SUFFIX
-        self.LLM = OpenAIWrapper(temperature)
         self.messages = [{"role": "system", "content": "You are a helpful assistant."}]
 
     def get_workflow(self, task_prompt):
@@ -59,8 +58,8 @@ class planningLLM:
         - input: task_prompt
         - output: workflow (json)
         '''
-        messages = self.messages + [{'role': 'user', "content": PLANNING_LLM_PREFIX+'\nThe task is:\n'+task_prompt+PLANNING_LLM_SUFFIX}]
-        response, status = self.LLM.run(messages)
+        messages = self.messages + [{'role': 'user', "content": PLANNING_LLM_PREFIX+'\n任务是:\n'+task_prompt+PLANNING_LLM_SUFFIX}]
+        response, status = get_openai_response(messages)
         if status:
             return self._txt2json(response)
         else:

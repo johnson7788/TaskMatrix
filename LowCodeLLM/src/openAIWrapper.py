@@ -58,3 +58,4 @@ class OpenAIWrapper:
             return res, True
         except Exception as e:
             return "", False
+

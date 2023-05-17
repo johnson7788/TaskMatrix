@@ -8,7 +8,7 @@ class lowCodeLLM:
         self.ELLM = executingLLM(ELLM_temperature)
 
     def get_workflow(self, task_prompt):
-        return self.PLLM.get_workflow(task_prompt)
+        return self.PLLM.get_workflow(task_prompt)  #task_prompt：'2个商品对比'
 
     def extend_workflow(self, task_prompt, current_workflow, step=''):
         ''' generate a sub-workflow for one of steps 
